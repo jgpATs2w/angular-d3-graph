@@ -12,27 +12,30 @@ import {Http, Response} from '@angular/http';
 export class AppComponent {
   nodes: Node[] = [];
   links: Link[] = [];
-  data: any[];
+  data: any;
   loading: boolean;
 
   constructor(private http: Http) {
+    this.makeRequest();
   }
 
-  ngOnInit() {
-    this.makeRequest();
+  ngOnInit( ) {
   }
 
   makeRequest(): void {
     this.loading = true;
-    this.http.get('http://localhost/anaya-geval-api/assets/godiva-10-es.json')
-    .subscribe((res: Response) => {
-      this.data = res.json().return; console.info(res);
-      this.data.map(function(tag){
-        this.nodes.push(new Node(tag.ID));
-        this.links.push(new Link(tag.PARENT_ID, tag.ID))
+    this.http.get('assets/godiva-10-es.json')
+    .subscribe((res: Response)=>{
+      const tagsFromGodiva= res.json() || {return: []};
+      tagsFromGodiva.result.map((tag) => {
+        this.nodes.push(new Node(+tag.ID));
+      });
+      tagsFromGodiva.result.map((tag) => {
+        this.links.push(new Link(+tag.PARENT_ID, +tag.ID))
       });
       this.loading = false;
     });
+
   }
 
   /*constructor() {
